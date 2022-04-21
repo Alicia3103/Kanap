@@ -22,11 +22,13 @@ function addProduct(products){
     appendArticleToAnchor(anchor,article)
 })
 }
+/*creation de la balise a + identification du href*/
 function createAnchor(productId){
     const anchor = document.createElement("a")
     anchor.href ="./product.html?id="+productId
     return anchor
 }
+/*Selection de la balise cible pour lui insérer la balise a avec son article a l'interieur*/
 function appendArticleToAnchor (anchor, article){
   const items = document.querySelector("#items")
     if(items != null){
@@ -34,25 +36,28 @@ function appendArticleToAnchor (anchor, article){
     anchor.appendChild(article)
     return anchor}
 }
+/*insérer l'image, et les balise h3 et p dans la balise article*/
 function appendToArticle(article,image,h3,p){
     article.appendChild(image)
     article.appendChild(h3)
     article.appendChild(p)
     return article
 }
-
+/*création de l'image avec sa source et don attribut*/
 function createImage(imageUrl, altTxt){
     const image = document.createElement("img")
     image.src = imageUrl
     image.alt = altTxt
     return image
 }
+/*creation du h3 contenant le nom du KANAP*/
 function createName(name){
    const h3 = document.createElement("H3")
    h3.textContent = name
    h3.classList.add =("productName")
    return h3
 }
+/* creation du p contenant la description du KANAP*/
 function createDescription(description){
     const p = document.createElement("p")
     p.textContent= description
