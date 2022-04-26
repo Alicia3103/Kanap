@@ -30,7 +30,7 @@ function createAnchor(productId){
 }
 /*Selection de la balise cible pour lui insérer la balise a avec son article a l'interieur*/
 function appendArticleToAnchor (anchor, article){
-  const items = document.querySelector("#items")
+  const items = document.getElementById("items")
     if(items != null){
     items.appendChild(anchor)
     anchor.appendChild(article)
