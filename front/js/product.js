@@ -63,19 +63,20 @@ const button =document.getElementById("addToCart")
 button.addEventListener("click", (e)=>{
     const colors = document.getElementById("colors").value
     let quantity = document.getElementById("quantity").value
+    /*key pose probleme et réécris le localstorage si on ajoute 2 fois le meme canape(couleur et id) mais pas la mem qtité*/ 
     const key=productId+"-"+colors
     const product = {
+        key:productId+"-"+colors,
         id: productId,
         color: colors,
         quantity: Number(quantity),
       }
-    orderInvalid(colors,quantity)
-    const validOrder = orderInvalid(colors,quantity)
-    orderValid(validOrder,key,product)
-    
+    orderValid(colors,quantity,key,product)
+       
     
 })
-function orderInvalid(colors,quantity){
+//vérification de la validité des champs
+function orderValid(colors,quantity,key,product){
     if(colors ===""){
         alert("Veuillez sélectionner une couleur ")
         return false
@@ -85,16 +86,31 @@ function orderInvalid(colors,quantity){
         return false
     }
     else{
-        return true}
+        addProductToCart(key,product)}
 }
-function orderValid(validOrder,key,product){
-    if (validOrder === true){
-        
+
+//ajout du produit au localStorage
+function addProductToCart(key,product){
+        // récupération de la clé produit et de ses données
+        let array = localStorage.getItem(key)
+        //si la clé(id-couleur) existe déjà on va incrémenter la nouvelle quantité
+        if(array != null){
+            //conversion en objet 
+            const obj=JSON.parse(array)
+            //récupération de la quantité déjà présente dans le localStorage
+            const objQty= obj.quantity
+            //ajout de la quantité supplémentaire
+            const newQty= objQty + product.quantity
+            //remplacement de l'ancienne quantité par le total ancienne+nouvelle
+            product.quantity= newQty
+            //renvois dans le storage du produit avec ses quantités à jour.
+            localStorage.setItem(key, JSON.stringify(product))
+        }
+        //si la clé n'est pas déjà présente, on envois les informations directrement dans le storage.
         localStorage.setItem(key, JSON.stringify(product))
-        alert("produit ajouté au panier")
+        alert("Produit ajouté au panier")
 
-
-       window.location.href = "cart.html"}
+    /*window.location.href = "cart.html"*/
 }
 
-  
+
