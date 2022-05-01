@@ -1,11 +1,19 @@
+/**
+ * Affichage de la page d'aceuil
+ */
+//import { Product } from "../js/class/Product.js"; Importer la class
+
 fetch("http://localhost:3000/api/products")
 .then((response) => response.json())
-.then((data)=>addProduct(data))
+.then((jsonListProduct)=>{
+for(let jsonProduct of jsonListProduct ){
+    const product = new Product(jsonProduct)
+    addProduct(product)
+}
+})
 
-function addProduct(products){
-    products.forEach((product) => {
-        
-    
+function addProduct(product){
+    console.log(product)
     const productId = product._id
     const imageUrl= product.imageUrl
     const altTxt = product.altTxt
@@ -20,7 +28,7 @@ function addProduct(products){
     
     appendToArticle(article,image,h3,p)
     appendArticleToAnchor(anchor,article)
-})
+
 }
 /*creation de la balise a + identification du href*/
 function createAnchor(productId){

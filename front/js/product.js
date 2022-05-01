@@ -1,21 +1,26 @@
  /*Recupération de l'id dans l'url*/
  const queryString = window.location
  const url = new URL (queryString)
- const productId = url.searchParams.get("id")
+ const itemId = url.searchParams.get("id")
 
- const prodcutApiPath = "http://localhost:3000/api/products/"+ productId
+ const prodcutApiPath = "http://localhost:3000/api/products/"+ itemId
 /*Récupération des données liées au produit dans l'API*/
  fetch(prodcutApiPath)
  .then((response) => response.json())
- .then((data)=>infoProduct(data))
+ .then((jsonProduct)=>{
+     const product = new Product (jsonProduct)
+     infoProduct(product)
+ }
+)
 
- function infoProduct(data){
-    const imageUrl= data.imageUrl
-    const altTxt = data.altTxt
-    const nameProduct = data.name
-    const descriptionProduct=data.description
-    const priceProduct =data.price
-    const colors = data.colors
+ function infoProduct(product){
+ 
+    const imageUrl= product.imageUrl
+    const altTxt = product.altTxt
+    const nameProduct = product.name
+    const descriptionProduct=product.description
+    const priceProduct = product.getFormatedPrice()
+    const colors = product.colors
     /*appel des fonctions de remplissage d'informations*/
     createImage( imageUrl , altTxt)
     completeName(nameProduct)
@@ -62,55 +67,87 @@ const button =document.getElementById("addToCart")
 
 button.addEventListener("click", (e)=>{
     const colors = document.getElementById("colors").value
-    let quantity = document.getElementById("quantity").value
-    /*key pose probleme et réécris le localstorage si on ajoute 2 fois le meme canape(couleur et id) mais pas la mem qtité*/ 
-    const key=productId+"-"+colors
-    const product = {
-        key:productId+"-"+colors,
-        id: productId,
+    let quantity = document.getElementById("quantity").value 
+    const newProduct = {
+        key:itemId+"-"+colors,
+        id: itemId,
         color: colors,
         quantity: Number(quantity),
       }
-    orderValid(colors,quantity,key,product)
+      orderValid(colors,quantity,newProduct)
        
     
-})
-//vérification de la validité des champs
-function orderValid(colors,quantity,key,product){
-    if(colors ===""){
-        alert("Veuillez sélectionner une couleur ")
-        return false
-    }
-    if(quantity >100 || quantity<=0){
-        alert("Veuillez sélectionner une quantité comprise entre 1 et 100")
-        return false
-    }
-    else{
-        addProductToCart(key,product)}
-}
-
-//ajout du produit au localStorage
-function addProductToCart(key,product){
-        // récupération de la clé produit et de ses données
-        let array = localStorage.getItem(key)
-        //si la clé(id-couleur) existe déjà on va incrémenter la nouvelle quantité
-        if(array != null){
-            //conversion en objet 
-            const obj=JSON.parse(array)
-            //récupération de la quantité déjà présente dans le localStorage
-            const objQty= obj.quantity
-            //ajout de la quantité supplémentaire
-            const newQty= objQty + product.quantity
-            //remplacement de l'ancienne quantité par le total ancienne+nouvelle
-            product.quantity= newQty
-            //renvois dans le storage du produit avec ses quantités à jour.
-            localStorage.setItem(key, JSON.stringify(product))
+    })
+    //vérification de la validité des champs
+    function orderValid(colors,quantity,newProduct){
+        if(colors ===""){
+            alert("Veuillez sélectionner une couleur ")
+            return false
         }
-        //si la clé n'est pas déjà présente, on envois les informations directrement dans le storage.
-        localStorage.setItem(key, JSON.stringify(product))
-        alert("Produit ajouté au panier")
+        if(quantity >100 || quantity<=0){
+            alert("Veuillez sélectionner une quantité comprise entre 1 et 100")
+            return false
+        }
+        else{
+            addProductToCart(newProduct)}
+    }
+    
+    //ajout du produit au localStorage
+    function addProductToCart(newProduct){
+            // récupération de la clé produit et de ses données
+            let array = []
+            array = localStorage.getItem('Panier existant')
+            array=JSON.parse(array)
+            console.log(array)
+            //si la clé(id-couleur) existe déjà on va incrémenter la nouvelle quantité
+            if(array == null){
+                //conversion en objet 
+                let newArray=[newProduct]
+               // console.log(newArray)
+            localStorage.setItem('Panier existant', JSON.stringify(newArray));
+            alert("Produit ajouté au panier")
+    
+              
+            }
+            //si la clé n'est pas déjà présente, on envois les informations directrement dans le storage.
+            else{
+                let double = false
+            
+                for (const obj of array) {
+                    if(obj.key === newProduct.key){
+                    
+                    const newQty = obj.quantity + newProduct.quantity
+                    obj.quantity=newQty
+                    console.log(obj.quantity)
+                    localStorage.setItem('Panier existant', JSON.stringify(array));
+                    alert("Produit ajouté au panier")
+                    return true
+                    }
+                    
+                }
+                console.log(double)
+                        if (double === false){
+                        array.push(newProduct)
+                        localStorage.setItem('Panier existant', JSON.stringify(array));
+                        alert("Produit ajouté au panier")
+                        }
 
-    /*window.location.href = "cart.html"*/
-}
-
-
+                
+    
+            }
+            
+        /*window.location.href = "cart.html"*/
+    
+    }
+    
+    /*
+  function remplacer(obj, newProduct,double){
+      if (obj.key === newProduct.key){
+          newKey = obj.key + newProduct.key
+          obj.key = newKey
+          return obj.key
+      }
+      else{
+          return double=false
+      }
+  }*/
