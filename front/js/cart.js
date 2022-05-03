@@ -25,6 +25,7 @@ function identifyItem(item) {
             const product = new Product (jsonProduct)
             product.quantity = item.quantity
             product.color = item.color
+            product.key = item.id+"-"+item.color
             cartArticle(product)
         })
   
@@ -32,7 +33,7 @@ function identifyItem(item) {
 
 
 function cartArticle(product){
-    const cart = document.getElementById("cart__items")
+    const cartItem = document.getElementById("cart__items")
     const article = document.createElement("article")
     //items params
     const productId = product.id
@@ -42,23 +43,21 @@ function cartArticle(product){
     const productAltTxt = product.altTxt
     const productImageUrl = product.imageUrl
     const itemPrice = product.price
-
-   
-    createArticle(product,cart, article)
+    createArticle(product,cartItem, article)
     articleImage(article,product)
-    articleContent(article,product)
+    articleContent(article,product,article)
        
-    return cart
+    return cartItem
 }
 
-function createArticle(product,cart, article){
+function createArticle(product,cartItem, article){
 
     article.className = "cart__item"
-    article.dataset.id=product.id
+    article.dataset.id= product._id
     article.dataset.color = product.color
     
-    cart.appendChild(article)
-    return cart
+    cartItem.appendChild(article)
+    return cartItem
 
 }
 
@@ -74,11 +73,11 @@ function articleImage(article,product){
     return article
 }
 
-function articleContent(article,product){
+function articleContent(article,product,article){
     const divContent = document.createElement("div")
     divContent.className ="cart__item__content"
     articleDescription(divContent,product)
-    articleSettings(divContent,product)
+    articleSettings(divContent,product,article)
 
     article.appendChild(divContent)
     return article
@@ -98,7 +97,7 @@ function articleDescription(divContent,product){
     divContent.appendChild(divDescription)
     return divContent
 }
-function articleSettings(divContent,product){
+function articleSettings(divContent,product,article){
     const divSettings =document.createElement("div")
     divSettings.className ="cart__item__content__settings"
     
@@ -119,16 +118,40 @@ function articleSettings(divContent,product){
     pInputQuantity.value=product.quantity 
     divQuantity.appendChild(pInputQuantity)
     
-   // pInputQuantity.addEventListener("change", (Product)=>(console.log("attention"+Product.id)))
+   pInputQuantity.addEventListener("change", ()=>{
+       console.log(product.key)
+       let array=JSON.parse(localStorage.getItem('Panier existant'))
+       for (const obj of array) {
+        if(obj.key === product.key){
+            obj.quantity= pInputQuantity.value
+
+            localStorage.setItem('Panier existant', JSON.stringify(array));
+            alert("Quantité modifiée")
+        }
+    }  
+
+   })
 
     const divDelete =document.createElement("div")
     divDelete.className ="cart__item__content__settings__delete"
-     divSettings.appendChild(divDelete)
+    divSettings.appendChild(divDelete)
 
     const pDelete =document.createElement("p")
     pDelete.className="deleteItem"
     pDelete.textContent="Supprimer"
     divDelete.appendChild(pDelete)
+    pDelete.addEventListener("click", ()=>{
+        console.log(product.key)
+        let array=JSON.parse(localStorage.getItem('Panier existant'))
+        article.remove()
+        for (const obj of array) {
+         if(obj.key === product.key){
+            let newArray = array.filter((item) => item.key !== product.key);   
+            localStorage.setItem('Panier existant', JSON.stringify(newArray));
+            alert("Produit supprimé")
+         }
+     }  
+    })
    
     divContent.appendChild(divSettings)
     return divContent

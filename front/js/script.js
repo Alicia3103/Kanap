@@ -13,7 +13,6 @@ for(let jsonProduct of jsonListProduct ){
 })
 
 function addProduct(product){
-    console.log(product)
     const productId = product._id
     const imageUrl= product.imageUrl
     const altTxt = product.altTxt
