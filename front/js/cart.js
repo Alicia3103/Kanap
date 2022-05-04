@@ -1,55 +1,44 @@
 panier()
 
-function panier(){
+async function panier(){
     let cart = []
     cart = localStorage.getItem('Panier existant')
-    cart=JSON.parse(cart)
-    console.log(cart)  
+    cart=JSON.parse(cart)  
+   
 
     for( let i = 0; i <cart.length; i++){
-        const item = cart[i]
-        identifyItem(item)
-        
-    }  
+        let item = cart[i]
 
 
-}
 
-function identifyItem(item) {
-    
         const prodcutApiPath = "http://localhost:3000/api/products/"+ item.id
-    /*Récupération des données liées au produit dans l'API*/
-         fetch(prodcutApiPath)
+         /*Récupération des données liées au produit dans l'API*/
+        await fetch(prodcutApiPath)
         .then((response) => response.json())
         .then((jsonProduct)=>{
-            const product = new Product (jsonProduct)
+            let product = new Product (jsonProduct)
             product.quantity = item.quantity
             product.color = item.color
             product.key = item.id+"-"+item.color
-            cartArticle(product)
-        })
-  
-}
+         
+            cartArticle( product)
 
+        }) 
+        
+    }  
+    totalCart()
+}
 
 function cartArticle(product){
     const cartItem = document.getElementById("cart__items")
     const article = document.createElement("article")
-    //items params
-    const productId = product.id
-    const productColor =product.color
-    const productQuantity = product.quantity
-    const productName =product.name 
-    const productAltTxt = product.altTxt
-    const productImageUrl = product.imageUrl
-    const itemPrice = product.price
+     
     createArticle(product,cartItem, article)
     articleImage(article,product)
     articleContent(article,product,article)
        
     return cartItem
 }
-
 function createArticle(product,cartItem, article){
 
     article.className = "cart__item"
@@ -60,7 +49,6 @@ function createArticle(product,cartItem, article){
     return cartItem
 
 }
-
 function articleImage(article,product){
 
     const div = document.createElement("div")
@@ -72,7 +60,6 @@ function articleImage(article,product){
     article.appendChild(div)
     return article
 }
-
 function articleContent(article,product,article){
     const divContent = document.createElement("div")
     divContent.className ="cart__item__content"
@@ -90,7 +77,7 @@ function articleDescription(divContent,product){
     const pColor =document.createElement("p")
     pColor.textContent=product.color
     const pPrice=document.createElement("p")
-    pPrice.textContent=product.price +"€"
+    pPrice.textContent=product.getFormatedPrice() +"€"
     divDescription.appendChild(h2Name)
     divDescription.appendChild(pColor)
     divDescription.appendChild(pPrice)
@@ -118,19 +105,7 @@ function articleSettings(divContent,product,article){
     pInputQuantity.value=product.quantity 
     divQuantity.appendChild(pInputQuantity)
     
-   pInputQuantity.addEventListener("change", ()=>{
-       console.log(product.key)
-       let array=JSON.parse(localStorage.getItem('Panier existant'))
-       for (const obj of array) {
-        if(obj.key === product.key){
-            obj.quantity= pInputQuantity.value
-
-            localStorage.setItem('Panier existant', JSON.stringify(array));
-            alert("Quantité modifiée")
-        }
-    }  
-
-   })
+    modificationQuantité(pInputQuantity,product)
 
     const divDelete =document.createElement("div")
     divDelete.className ="cart__item__content__settings__delete"
@@ -140,8 +115,59 @@ function articleSettings(divContent,product,article){
     pDelete.className="deleteItem"
     pDelete.textContent="Supprimer"
     divDelete.appendChild(pDelete)
+
+    suppressionProduit(pDelete,product,article)
+   
+    divContent.appendChild(divSettings)
+    return divContent
+}
+
+ async function totalCart(){
+    let array=JSON.parse(localStorage.getItem('Panier existant'))
+    let totalPrice = 0
+    let totalQuantity =0
+    
+    for(let item of array){
+    const prodcutApiPath = "http://localhost:3000/api/products/"+ item.id
+    /*Récupération des données liées au produit dans l'API*/
+    await fetch(prodcutApiPath)
+        .then((response) => response.json())
+        .then((jsonProduct)=>{
+            const product = new Product (jsonProduct)
+            product.quantity = item.quantity
+            product.color = item.color
+            product.key = item.id+"-"+item.color
+            item.price = product.price
+        })
+
+    const itemTotal =item.price * item.quantity
+    totalPrice += Number(itemTotal)
+    totalQuantity += Number(item.quantity)  
+    }     
+
+    const pTotalQuantity = document.getElementById("totalQuantity")
+    pTotalQuantity.textContent= totalQuantity
+    const pTotalPrice = document.getElementById("totalPrice")
+    pTotalPrice.textContent= Intl.NumberFormat().format(totalPrice)
+ }
+function modificationQuantité(pInputQuantity,product){
+    pInputQuantity.addEventListener("change", ()=>{
+
+        let array=JSON.parse(localStorage.getItem('Panier existant'))
+        for (const obj of array) {
+         if(obj.key === product.key){
+             obj.quantity= pInputQuantity.value
+             localStorage.setItem('Panier existant', JSON.stringify(array))
+             
+             alert("Quantité modifiée")
+             totalCart()
+         }
+     }  
+    })
+}
+function suppressionProduit(pDelete,product,article){
     pDelete.addEventListener("click", ()=>{
-        console.log(product.key)
+
         let array=JSON.parse(localStorage.getItem('Panier existant'))
         article.remove()
         for (const obj of array) {
@@ -149,11 +175,8 @@ function articleSettings(divContent,product,article){
             let newArray = array.filter((item) => item.key !== product.key);   
             localStorage.setItem('Panier existant', JSON.stringify(newArray));
             alert("Produit supprimé")
+            totalCart()
          }
      }  
     })
-   
-    divContent.appendChild(divSettings)
-    return divContent
 }
-
