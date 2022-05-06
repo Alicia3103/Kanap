@@ -3,15 +3,18 @@
  const url = new URL (queryString)
  const itemId = url.searchParams.get("id")
 
- const prodcutApiPath = "http://localhost:3000/api/products/"+ itemId
+ 
 /*Récupération des données liées au produit dans l'API*/
- fetch(prodcutApiPath)
+loadconfig().then(data =>{
+    config=data
+fetch(config.host+ "/api/products/"+ itemId)
+ //fetch(prodcutApiPath)
  .then((response) => response.json())
  .then((jsonProduct)=>{
      const product = new Product (jsonProduct)
      infoProduct(product)
- }
-)
+ })
+})
 
  function infoProduct(product){
  

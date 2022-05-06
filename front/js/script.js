@@ -2,14 +2,16 @@
  * Affichage de la page d'aceuil
  */
 //import { Product } from "../js/class/Product.js"; Importer la class
-
-fetch("http://localhost:3000/api/products")
+loadconfig().then(data =>{
+    config=data
+fetch(config.host+ "/api/products")
 .then((response) => response.json())
 .then((jsonListProduct)=>{
 for(let jsonProduct of jsonListProduct ){
     const product = new Product(jsonProduct)
     addProduct(product)
 }
+})
 })
 
 function addProduct(product){
@@ -71,3 +73,4 @@ function createDescription(description){
     p.classList.add =("productDescription")
     return p
 }
+

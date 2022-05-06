@@ -1,4 +1,5 @@
 panier()
+formChecker()
 
 async function panier(){
     let cart = []
@@ -11,8 +12,10 @@ async function panier(){
 
 
 
-        const prodcutApiPath = "http://localhost:3000/api/products/"+ item.id
-         /*Récupération des données liées au produit dans l'API*/
+        const prodcutApiPath = await loadconfig(item).then(data =>{
+            config=data
+            return config.host+"/api/products/"+ item.id})
+        /*Récupération des données liées au produit dans l'API*/
         await fetch(prodcutApiPath)
         .then((response) => response.json())
         .then((jsonProduct)=>{
@@ -105,7 +108,7 @@ function articleSettings(divContent,product,article){
     pInputQuantity.value=product.quantity 
     divQuantity.appendChild(pInputQuantity)
     
-    modificationQuantité(pInputQuantity,product)
+    modificationQuantité(pInputQuantity,product,article)
 
     const divDelete =document.createElement("div")
     divDelete.className ="cart__item__content__settings__delete"
@@ -128,7 +131,10 @@ function articleSettings(divContent,product,article){
     let totalQuantity =0
     
     for(let item of array){
-    const prodcutApiPath = "http://localhost:3000/api/products/"+ item.id
+    
+    const prodcutApiPath = await loadconfig(item).then(data =>{
+        config=data
+        return config.host+"/api/products/"+ item.id})
     /*Récupération des données liées au produit dans l'API*/
     await fetch(prodcutApiPath)
         .then((response) => response.json())
@@ -150,19 +156,33 @@ function articleSettings(divContent,product,article){
     const pTotalPrice = document.getElementById("totalPrice")
     pTotalPrice.textContent= Intl.NumberFormat().format(totalPrice)
  }
-function modificationQuantité(pInputQuantity,product){
+function modificationQuantité(pInputQuantity,product,article){
     pInputQuantity.addEventListener("change", ()=>{
 
         let array=JSON.parse(localStorage.getItem('Panier existant'))
+        let quantity=pInputQuantity.value
+        console.log(quantity)
+        if(quantity >= 1 && quantity < 101 ){
+
+            for (const obj of array) {
+                if(obj.key === product.key){
+                    obj.quantity= pInputQuantity.value
+                    localStorage.setItem('Panier existant', JSON.stringify(array))
+                    
+                    alert("Quantité modifiée")
+                    totalCart()
+                }
+            }       
+        }
+        else{
+                       
+        alert("veuillez entrer une quantité entre 1 et 100")
         for (const obj of array) {
-         if(obj.key === product.key){
-             obj.quantity= pInputQuantity.value
-             localStorage.setItem('Panier existant', JSON.stringify(array))
-             
-             alert("Quantité modifiée")
-             totalCart()
-         }
-     }  
+        if(obj.key === product.key){
+        pInputQuantity.value=obj.quantity      
+        }
+        }      
+        }
     })
 }
 function suppressionProduit(pDelete,product,article){
@@ -179,4 +199,56 @@ function suppressionProduit(pDelete,product,article){
          }
      }  
     })
+} 
+
+function formChecker(){
+    let firstName = document.getElementById("firstName")
+    let firstNameValue =""
+    firstName.addEventListener("input", (e)=>{
+        
+        const errorMsg = document.getElementById("firstNameErrorMsg")
+        let valeurFirstName=e.target.value
+        
+        if(!valeurFirstName.match(/^[a-zA-Z]+$/)){
+            errorMsg.textContent="Ce champ ne doit contenir que des lettres"
+            firstNameValue=""
+        }
+        else{
+            firstNameValue=e.target.value
+        }
+        console.log(firstNameValue)
+    })
+    let lastName = document.getElementById("lastName")
+    let lastNameValue =""
+    lastName.addEventListener("input", (e)=>{
+        
+        const errorMsg = document.getElementById("lastNameErrorMsg")
+        let valeurLastName=e.target.value
+        
+        if(!valeurLastName.match(/^[a-zA-Z]+$/)){
+            errorMsg.textContent="Ce champ ne doit contenir que des lettres"
+            lastNameValue=""
+        }
+        else{
+            lastNameValue=e.target.value
+        }
+        console.log(lastNameValue)
+    })
+    let adresse = document.getElementById("address")
+    let adresseValue =""
+    adresse.addEventListener("input", (e)=>{
+        
+        const errorMsg = document.getElementById("addressErrorMsg")
+        let valeuradresse=e.target.value
+        
+        if(!valeuradresse.match(/^[a-zA-Z0-9\s,'-]*$/)){
+            errorMsg.textContent="Veuillez rentrer une adresse valide"
+            adresseValue=""
+        }
+        else{
+            adresseValue=e.target.value
+        }
+        console.log(adresseValue)
+    })
 }
+//"([^[:alpha:]$])"
