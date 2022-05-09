@@ -6,7 +6,7 @@ async function panier(){
     cart = localStorage.getItem('Panier existant')
     cart=JSON.parse(cart)  
    
-
+    //création d'un article pour chaque produit du panier (local storage)
     for( let i = 0; i <cart.length; i++){
         let item = cart[i]
 
@@ -33,6 +33,8 @@ async function panier(){
 }
 
 function cartArticle(product){
+
+    //création de l'article et appel des différents composants (a travers des fonctions)
     const cartItem = document.getElementById("cart__items")
     const article = document.createElement("article")
      
@@ -43,7 +45,7 @@ function cartArticle(product){
     return cartItem
 }
 function createArticle(product,cartItem, article){
-
+    //ajout des identifications spécifique de l'article (id et color)
     article.className = "cart__item"
     article.dataset.id= product._id
     article.dataset.color = product.color
@@ -53,7 +55,7 @@ function createArticle(product,cartItem, article){
 
 }
 function articleImage(article,product){
-
+    // ajout de l'image a l'article
     const div = document.createElement("div")
     div.className ="cart__item__img"
     const img =document.createElement("img")
@@ -64,8 +66,10 @@ function articleImage(article,product){
     return article
 }
 function articleContent(article,product,article){
+    //création du conetnu de l'article et appel des fonctions d'affichages des détails de l'article
     const divContent = document.createElement("div")
     divContent.className ="cart__item__content"
+    
     articleDescription(divContent,product)
     articleSettings(divContent,product,article)
 
@@ -74,14 +78,19 @@ function articleContent(article,product,article){
 }
 
 function articleDescription(divContent,product){
+    //créationdu contenu des différents articles du panier(nom, couleur et quantité)
     const divDescription =document.createElement("div")
     divDescription.className ="cart__item__content__description"
+    
     const h2Name =document.createElement("h2")
     h2Name.textContent=product.name
+    
     const pColor =document.createElement("p")
     pColor.textContent=product.color
+    
     const pPrice=document.createElement("p")
     pPrice.textContent=product.getFormatedPrice() +"€"
+   
     divDescription.appendChild(h2Name)
     divDescription.appendChild(pColor)
     divDescription.appendChild(pPrice)
@@ -91,7 +100,7 @@ function articleDescription(divContent,product){
 function articleSettings(divContent,product,article){
     const divSettings =document.createElement("div")
     divSettings.className ="cart__item__content__settings"
-    
+    // création de la div quantité et appel de la fonction de modification de qté
     const divQuantity =document.createElement("div")
     divQuantity.className ="cart__item__content__settings__quantity"
     divSettings.appendChild(divQuantity)
@@ -109,8 +118,8 @@ function articleSettings(divContent,product,article){
     pInputQuantity.value=product.quantity 
     divQuantity.appendChild(pInputQuantity)
     
-    modificationQuantité(pInputQuantity,product,article)
-
+    modificationQuantité(pInputQuantity,product)
+    // création de la div supprimer et appel de la fonction de suppression d'article
     const divDelete =document.createElement("div")
     divDelete.className ="cart__item__content__settings__delete"
     divSettings.appendChild(divDelete)
@@ -126,18 +135,20 @@ function articleSettings(divContent,product,article){
     return divContent
 }
 
+//calcul du prix total
  async function totalCart(){
+    // récupération du contenu du panier
     let array=JSON.parse(localStorage.getItem('Panier existant'))
     let totalPrice = 0
     let totalQuantity =0
     
     for(let item of array){
     
-    const prodcutApiPath = await loadconfig(item).then(data =>{
-        config=data
-        return config.host+"/api/products/"+ item.id})
-    /*Récupération des données liées au produit dans l'API*/
-    await fetch(prodcutApiPath)
+        const prodcutApiPath = await loadconfig(item).then(data =>{
+            config=data
+            return config.host+"/api/products/"+ item.id})
+            //Récupération des données liées au produit dans l'API
+        await fetch(prodcutApiPath)
         .then((response) => response.json())
         .then((jsonProduct)=>{
             const product = new Product (jsonProduct)
@@ -157,11 +168,16 @@ function articleSettings(divContent,product,article){
     const pTotalPrice = document.getElementById("totalPrice")
     pTotalPrice.textContent= Intl.NumberFormat().format(totalPrice)
  }
-function modificationQuantité(pInputQuantity,product,article){
+
+ //fonction de modification de la quantité d'articles
+function modificationQuantité(pInputQuantity,product){
+
+    // ecoute de la modification de la valeur de l'input quantité
     pInputQuantity.addEventListener("change", ()=>{
 
         let array=JSON.parse(localStorage.getItem('Panier existant'))
         let quantity=pInputQuantity.value
+        //quantité demandé conforme
         if(quantity >= 1 && quantity < 101 ){
 
             for (const obj of array) {
@@ -170,22 +186,26 @@ function modificationQuantité(pInputQuantity,product,article){
                     localStorage.setItem('Panier existant', JSON.stringify(array))
                     
                     alert("Quantité modifiée")
+                    //modification du total du panier
                     totalCart()
                 }
             }       
         }
-        else{
-                       
+
+        //quantité non conforme, alerte entrer une quantité correcte
+        else{              
         alert("veuillez entrer une quantité entre 1 et 100")
-        for (const obj of array) {
-        if(obj.key === product.key){
-        pInputQuantity.value=obj.quantity      
-        }
-        }      
+            for (const obj of array) {
+                if(obj.key === product.key){
+                pInputQuantity.value=obj.quantity      
+                }
+            }      
         }
     })
 }
+//fonction de suppression d'un article (dans le DOM et dans le localStorage)
 function suppressionProduit(pDelete,product,article){
+
     pDelete.addEventListener("click", ()=>{
 
         let array=JSON.parse(localStorage.getItem('Panier existant'))
@@ -195,23 +215,29 @@ function suppressionProduit(pDelete,product,article){
             let newArray = array.filter((item) => item.key !== product.key);   
             localStorage.setItem('Panier existant', JSON.stringify(newArray));
             alert("Produit supprimé")
+            //modification du total du panier
             totalCart()
          }
      }  
     })
 } 
-async function formSend(){
+
+function formSend(){
     let firstNameValue =null
     let lastNameValue =null
-    let adresseValue =null
-    let villeValue =null
+    let addressValue =null
+    let cityValue =null
     let emailValue =null
-    await formChecker(firstNameValue,lastNameValue,adresseValue,villeValue,emailValue)
+
+    formChecker(firstNameValue,lastNameValue,addressValue,cityValue,emailValue)
+
+
+   
   
 }
-async function formChecker(firstNameValue,lastNameValue,adresseValue,villeValue,emailValue){
+function formChecker(firstNameValue,lastNameValue,addressValue,cityValue,emailValue){
 
-
+    //conformité du prénom
     let firstName = document.getElementById("firstName")
     
     firstName.addEventListener("input", (e)=>{
@@ -230,6 +256,7 @@ async function formChecker(firstNameValue,lastNameValue,adresseValue,villeValue,
       
     })
 
+    //conformité du nom de famille
     let lastName = document.getElementById("lastName")
     
      lastName.addEventListener("input", (e)=>{
@@ -248,39 +275,43 @@ async function formChecker(firstNameValue,lastNameValue,adresseValue,villeValue,
        
     })
 
-    let adresse = document.getElementById("address")
+    //conformité de l'adresse
+    let address = document.getElementById("address")
     
-    adresse.addEventListener("input", (e)=>{
+    address.addEventListener("input", (e)=>{
         
         const errorMsg = document.getElementById("addressErrorMsg")
-        let valeuradresse=e.target.value
+        let valeuraddress=e.target.value
         
-        if(!valeuradresse.match(/^[a-zA-Z0-9\s,'-]*$/)){
+        if(!valeuraddress.match(/^[a-zA-Z0-9\s,'-]*$/)){
             errorMsg.textContent="Veuillez rentrer une adresse valide"
-            adresseValue=null
+            addressValue=null
         }
         else{
             errorMsg.textContent=""
-            adresseValue=e.target.value
+            addressValue=e.target.value
         }
       
     })
-    let ville = document.getElementById("city")
+
+    //conformité de la ville
+    let city = document.getElementById("city")
     
-    ville.addEventListener("input", (e)=>{
+    city.addEventListener("input", (e)=>{
         
         const errorMsg = document.getElementById("cityErrorMsg")
-        let valeurville=e.target.value
+        let valeurcity=e.target.value
         
-        if(!valeurville.match(/^(\d{4,5}) [a-zA-Z]+(?:[\s-][a-zA-Z]+)*$/)){
+        if(!valeurcity.match(/^(\d{4,5}) [a-zA-Z]+(?:[\s-][a-zA-Z]+)*$/)){
             errorMsg.textContent="Veuillez rentrer votre code postal suivi du nom de ville"
-            villeValue=null
+            cityValue=null
         }
         else{
             errorMsg.textContent=""
-            villeValue=e.target.value
+            cityValue=e.target.value
         }
     })
+    //conformité de l'email
         let email = document.getElementById("email")
          email.addEventListener("input", (e)=>{
         
@@ -289,23 +320,20 @@ async function formChecker(firstNameValue,lastNameValue,adresseValue,villeValue,
         
         if(!valeuremail.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,4})+$/)){
             errorMsg.textContent="Veuillez rentrer une adresse valide"
-            emailValue=null
-            
+            emailValue=null     
         }
         else{
             errorMsg.textContent=""
-            emailValue=e.target.value
-            
+            emailValue=e.target.value     
         }
         
         
     })
     
-
     const form = document.getElementById("order")
 
     form.addEventListener("click", (e) => {
-       
+
         e.preventDefault()
         
         let cartId=[]
@@ -314,28 +342,29 @@ async function formChecker(firstNameValue,lastNameValue,adresseValue,villeValue,
             const objId= obj.id
             cartId.push(objId)
         }
-            //verifier si le panier contient des choses
+            //si le panier ne contient aucun article
          if(cartId.length===0){
             
             alert("attention, votre panier est vide")
 
             }
         
+            // si le panier contient des articles
         else if(cartId.length>0){
-    
-            if (firstNameValue && lastNameValue && adresseValue && villeValue && emailValue ) {
+            // si les champs du formulaire sont bien remplis
+            if (firstNameValue && lastNameValue && addressValue && cityValue && emailValue ) {
                 let contact = {
                     firstName:firstNameValue,
                     lastName: lastNameValue,
-                    address: adresseValue,
-                    city: villeValue,
+                    address: addressValue,
+                    city: cityValue,
                     email: emailValue,
                 };
                 
                 
                 const commande ={contact,
                     products:cartId}
-                
+                // envois des infos de commande a l'api et recepetion du numéro de commande
                 fetch("http://localhost:3000/api/products/order", {
                     method: "POST",
                     headers: {
@@ -346,17 +375,19 @@ async function formChecker(firstNameValue,lastNameValue,adresseValue,villeValue,
                   })
                 .then((res) => res.json())
                 .then((data)=>{
+                    //redirection vers la page de confirmattion
                     window.location.href = "confirmation.html"+"?orderId="+data.orderId;
                     localStorage.clear();
                 })
             
               } 
+              // si les champs du formulaire ne sont pas bien remplis
               else {
                 alert("veuillez remplir correctement tous les champs");
               }
         
         }
       });
-   
+    
     
 }

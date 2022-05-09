@@ -138,19 +138,8 @@ button.addEventListener("click", (e)=>{
                 
     
             }
-            
-        /*window.location.href = "cart.html"*/
+       
     
     }
     
-    /*
-  function remplacer(obj, newProduct,double){
-      if (obj.key === newProduct.key){
-          newKey = obj.key + newProduct.key
-          obj.key = newKey
-          return obj.key
-      }
-      else{
-          return double=false
-      }
-  }*/
+  
