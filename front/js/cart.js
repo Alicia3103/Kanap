@@ -143,12 +143,11 @@ function articleSettings(divContent,product,article){
     let totalQuantity =0
     
     for(let item of array){
-    
-        const prodcutApiPath = await loadconfig(item).then(data =>{
+        loadconfig().then(data =>{
             config=data
-            return config.host+"/api/products/"+ item.id})
+        })
             //Récupération des données liées au produit dans l'API
-        await fetch(prodcutApiPath)
+        await fetch(config.host+"/api/products/"+ item.id)
         .then((response) => response.json())
         .then((jsonProduct)=>{
             const product = new Product (jsonProduct)
@@ -365,7 +364,12 @@ function formChecker(firstNameValue,lastNameValue,addressValue,cityValue,emailVa
                 const commande ={contact,
                     products:cartId}
                 // envois des infos de commande a l'api et recepetion du numéro de commande
-                fetch("http://localhost:3000/api/products/order", {
+
+                
+                loadconfig().then(data =>{
+                    config=data
+                })
+                fetch(config.host+ "/api/products/order", {
                     method: "POST",
                     headers: {
                       Accept: "application/json",
@@ -373,12 +377,14 @@ function formChecker(firstNameValue,lastNameValue,addressValue,cityValue,emailVa
                     },
                     body: JSON.stringify(commande),
                   })
+              
                 .then((res) => res.json())
                 .then((data)=>{
                     //redirection vers la page de confirmattion
                     window.location.href = "confirmation.html"+"?orderId="+data.orderId;
                     localStorage.clear();
                 })
+            
             
               } 
               // si les champs du formulaire ne sont pas bien remplis
