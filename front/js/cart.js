@@ -1,5 +1,5 @@
 panier()
-formChecker()
+formSend()
 
 async function panier(){
     let cart = []
@@ -72,6 +72,7 @@ function articleContent(article,product,article){
     article.appendChild(divContent)
     return article
 }
+
 function articleDescription(divContent,product){
     const divDescription =document.createElement("div")
     divDescription.className ="cart__item__content__description"
@@ -161,7 +162,6 @@ function modificationQuantité(pInputQuantity,product,article){
 
         let array=JSON.parse(localStorage.getItem('Panier existant'))
         let quantity=pInputQuantity.value
-        console.log(quantity)
         if(quantity >= 1 && quantity < 101 ){
 
             for (const obj of array) {
@@ -200,10 +200,20 @@ function suppressionProduit(pDelete,product,article){
      }  
     })
 } 
+async function formSend(){
+    let firstNameValue =null
+    let lastNameValue =null
+    let adresseValue =null
+    let villeValue =null
+    let emailValue =null
+    await formChecker(firstNameValue,lastNameValue,adresseValue,villeValue,emailValue)
+  
+}
+async function formChecker(firstNameValue,lastNameValue,adresseValue,villeValue,emailValue){
 
-function formChecker(){
+
     let firstName = document.getElementById("firstName")
-    let firstNameValue =""
+    
     firstName.addEventListener("input", (e)=>{
         
         const errorMsg = document.getElementById("firstNameErrorMsg")
@@ -211,31 +221,35 @@ function formChecker(){
         
         if(!valeurFirstName.match(/^[a-zA-Z]+$/)){
             errorMsg.textContent="Ce champ ne doit contenir que des lettres"
-            firstNameValue=""
+            firstNameValue=null
         }
         else{
+            errorMsg.textContent=""
             firstNameValue=e.target.value
         }
-        console.log(firstNameValue)
+      
     })
+
     let lastName = document.getElementById("lastName")
-    let lastNameValue =""
-    lastName.addEventListener("input", (e)=>{
+    
+     lastName.addEventListener("input", (e)=>{
         
         const errorMsg = document.getElementById("lastNameErrorMsg")
         let valeurLastName=e.target.value
         
         if(!valeurLastName.match(/^[a-zA-Z]+$/)){
             errorMsg.textContent="Ce champ ne doit contenir que des lettres"
-            lastNameValue=""
+            lastNameValue=null
         }
         else{
+            errorMsg.textContent=""
             lastNameValue=e.target.value
         }
-        console.log(lastNameValue)
+       
     })
+
     let adresse = document.getElementById("address")
-    let adresseValue =""
+    
     adresse.addEventListener("input", (e)=>{
         
         const errorMsg = document.getElementById("addressErrorMsg")
@@ -243,12 +257,106 @@ function formChecker(){
         
         if(!valeuradresse.match(/^[a-zA-Z0-9\s,'-]*$/)){
             errorMsg.textContent="Veuillez rentrer une adresse valide"
-            adresseValue=""
+            adresseValue=null
         }
         else{
+            errorMsg.textContent=""
             adresseValue=e.target.value
         }
-        console.log(adresseValue)
+      
     })
+    let ville = document.getElementById("city")
+    
+    ville.addEventListener("input", (e)=>{
+        
+        const errorMsg = document.getElementById("cityErrorMsg")
+        let valeurville=e.target.value
+        
+        if(!valeurville.match(/^(\d{4,5}) [a-zA-Z]+(?:[\s-][a-zA-Z]+)*$/)){
+            errorMsg.textContent="Veuillez rentrer votre code postal suivi du nom de ville"
+            villeValue=null
+        }
+        else{
+            errorMsg.textContent=""
+            villeValue=e.target.value
+        }
+    })
+        let email = document.getElementById("email")
+         email.addEventListener("input", (e)=>{
+        
+        const errorMsg = document.getElementById("emailErrorMsg")
+        let valeuremail=e.target.value
+        
+        if(!valeuremail.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,4})+$/)){
+            errorMsg.textContent="Veuillez rentrer une adresse valide"
+            emailValue=null
+            
+        }
+        else{
+            errorMsg.textContent=""
+            emailValue=e.target.value
+            
+        }
+        
+        
+    })
+    
+
+    const form = document.getElementById("order")
+
+    form.addEventListener("click", (e) => {
+       
+        e.preventDefault()
+        
+        let cartId=[]
+        let array=JSON.parse(localStorage.getItem('Panier existant'))
+        for (const obj of array) {
+            const objId= obj.id
+            cartId.push(objId)
+        }
+            //verifier si le panier contient des choses
+         if(cartId.length===0){
+            
+            alert("attention, votre panier est vide")
+
+            }
+        
+        else if(cartId.length>0){
+    
+            if (firstNameValue && lastNameValue && adresseValue && villeValue && emailValue ) {
+                let contact = {
+                    firstName:firstNameValue,
+                    lastName: lastNameValue,
+                    address: adresseValue,
+                    city: villeValue,
+                    email: emailValue,
+                };
+                
+                
+                const commande ={contact,
+                    products:cartId}
+                
+                fetch("http://localhost:3000/api/products/order", {
+                    method: "POST",
+                    headers: {
+                      Accept: "application/json",
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(commande),
+                  })
+                .then((res) => res.json())
+                .then((data)=>{
+                    window.location.href = "confirmation.html"+"?orderId="+data.orderId;
+                    localStorage.clear();
+                })
+            
+              } 
+              else {
+                alert("veuillez remplir correctement tous les champs");
+              }
+        
+        }
+      });
+   
+    
 }
-//"([^[:alpha:]$])"
