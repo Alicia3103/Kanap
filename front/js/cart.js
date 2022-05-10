@@ -244,7 +244,7 @@ function formChecker(firstNameValue,lastNameValue,addressValue,cityValue,emailVa
         const errorMsg = document.getElementById("firstNameErrorMsg")
         let valeurFirstName=e.target.value
         
-        if(!valeurFirstName.match(/^[a-zA-Z]+$/)){
+        if(!valeurFirstName.match(/^[a-zA-Z]+$/) && valeurFirstName.length!==0){
             errorMsg.textContent="Ce champ ne doit contenir que des lettres"
             firstNameValue=null
         }
@@ -263,7 +263,7 @@ function formChecker(firstNameValue,lastNameValue,addressValue,cityValue,emailVa
         const errorMsg = document.getElementById("lastNameErrorMsg")
         let valeurLastName=e.target.value
         
-        if(!valeurLastName.match(/^[a-zA-Z]+$/)){
+        if(!valeurLastName.match(/^[a-zA-Z]+$/) && valeurLastName.length!==0){
             errorMsg.textContent="Ce champ ne doit contenir que des lettres"
             lastNameValue=null
         }
@@ -282,8 +282,8 @@ function formChecker(firstNameValue,lastNameValue,addressValue,cityValue,emailVa
         const errorMsg = document.getElementById("addressErrorMsg")
         let valeuraddress=e.target.value
         
-        if(!valeuraddress.match(/^[a-zA-Z0-9\s,'-]*$/)){
-            errorMsg.textContent="Veuillez rentrer une adresse valide"
+        if(!valeuraddress.match(/^[a-zA-Z0-9\s,'-èéàö]*$/)&& valeuraddress.length!==0){
+            errorMsg.textContent="Veuillez rentrer une adresse valide, sans ponctuation"
             addressValue=null
         }
         else{
@@ -301,7 +301,7 @@ function formChecker(firstNameValue,lastNameValue,addressValue,cityValue,emailVa
         const errorMsg = document.getElementById("cityErrorMsg")
         let valeurcity=e.target.value
         
-        if(!valeurcity.match(/^(\d{4,5}) [a-zA-Z]+(?:[\s-][a-zA-Z]+)*$/)){
+        if(!valeurcity.match(/^(\d{4,5}) [a-zA-Zéèàö]+(?:[\s-][a-zA-Zéèàö]+)*$/) && valeurcity.length!==0){
             errorMsg.textContent="Veuillez rentrer votre code postal suivi du nom de ville"
             cityValue=null
         }
@@ -317,8 +317,8 @@ function formChecker(firstNameValue,lastNameValue,addressValue,cityValue,emailVa
         const errorMsg = document.getElementById("emailErrorMsg")
         let valeuremail=e.target.value
         
-        if(!valeuremail.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,4})+$/)){
-            errorMsg.textContent="Veuillez rentrer une adresse valide"
+        if(!valeuremail.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,4})+$/) && valeuremail.length!==0){
+            errorMsg.textContent="Veuillez rentrer une adresse mail valide"
             emailValue=null     
         }
         else{
