@@ -244,7 +244,7 @@ function formChecker(firstNameValue,lastNameValue,addressValue,cityValue,emailVa
         const errorMsg = document.getElementById("firstNameErrorMsg")
         let valeurFirstName=e.target.value
         
-        if(!valeurFirstName.match(/^[a-zA-Z]+$/) && valeurFirstName.length!==0){
+        if(!valeurFirstName.match(/^[a-zA-ZáàâäãåçéèêëíìîïñóòôöõúùûüýÿæœÁÀÂÄÃÅÇÉÈÊËÍÌÎÏÑÓÒÔÖÕÚÙÛÜÝŸÆŒ]+$/) && valeurFirstName.length!==0){
             errorMsg.textContent="Ce champ ne doit contenir que des lettres"
             firstNameValue=null
         }
@@ -263,7 +263,7 @@ function formChecker(firstNameValue,lastNameValue,addressValue,cityValue,emailVa
         const errorMsg = document.getElementById("lastNameErrorMsg")
         let valeurLastName=e.target.value
         
-        if(!valeurLastName.match(/^[a-zA-Z]+$/) && valeurLastName.length!==0){
+        if(!valeurLastName.match(/^[a-zA-ZáàâäãåçéèêëíìîïñóòôöõúùûüýÿæœÁÀÂÄÃÅÇÉÈÊËÍÌÎÏÑÓÒÔÖÕÚÙÛÜÝŸÆŒ]+$/) && valeurLastName.length!==0){
             errorMsg.textContent="Ce champ ne doit contenir que des lettres"
             lastNameValue=null
         }
